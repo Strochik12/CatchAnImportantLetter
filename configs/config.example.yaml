@@ -1,0 +1,38 @@
+# configs/config.example.yaml
+
+imap:
+  server: "outlook.office365.com"  # Или другой сервер ВШЭ
+  username: "your-email@edu.hse.ru"
+  password: "your-password"
+  # остальные поля будут взяты из defaults
+
+monitoring:
+  check_interval_seconds: 30
+
+rules:
+  - id: "rule-medosmotr"
+    name: "Медосмотр для сотрудников"
+    enabled: true
+    priority: 90
+    min_score: 70
+    conditions:
+      - type: "from"
+        operator: "contains"
+        value: "med@hse.ru"
+        weight: 40
+      - type: "subject"
+        operator: "contains" 
+        value: "медосмотр"
+        weight: 30
+      - type: "subject"
+        operator: "contains"
+        value: "запись"
+        weight: 30
+    actions:
+      - type: "telegram"
+        config:
+          telegram:
+            chat_id: 123456789
+            message: "🏥 СРОЧНО! Открыта запись на медосмотр!"
+
+# logging и monitoring можно не указывать - возьмутся из defaults

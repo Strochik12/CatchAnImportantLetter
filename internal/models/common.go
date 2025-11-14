@@ -42,7 +42,7 @@ func GenerateID() ID {
 		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]))
 }
 
-// ValidateRule проверяет правило на валидность
+// Rule.Validate проверяет правило на валидность
 func (r *Rule) Validate() error {
 	if r.Name == "" {
 		return fmt.Errorf("Rule name cannot be empty")
