@@ -25,3 +25,4 @@ go.work
 
 # Config files with secrets
 config.yaml
+configs/config.yaml
