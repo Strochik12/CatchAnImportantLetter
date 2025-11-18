@@ -1,7 +1,8 @@
 # configs/config.example.yaml
 
 imap:
-  server: "outlook.office365.com"  # Или другой сервер ВШЭ
+  server: "imap.yandex.ru"  # Или другой сервер почты, например smtp.yandex.ru
+  port: 993 # 465 для smtp.yandex.ru
   username: "your-email@edu.hse.ru"
   password: "your-password"
   # остальные поля будут взяты из defaults

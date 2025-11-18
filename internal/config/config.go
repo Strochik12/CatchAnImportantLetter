@@ -42,8 +42,8 @@ type MonitoringConfig struct {
 func DefaultConfig() *Config {
 	return &Config{
 		IMAP: IMAPConfig{
-			Server:         "outlook.office365.com",
-			Port:           993,
+			Server:         "imap.yandex.ru", // smtp.yandex.ru
+			Port:           993,              // 465
 			Mailbox:        "INBOX",
 			TLS:            true,
 			TimeoutSeconds: 30,
@@ -54,7 +54,7 @@ func DefaultConfig() *Config {
 		},
 		Monitoring: MonitoringConfig{
 			CheckIntervalSeconds: 30,
-			MaxEmails:            100,
+			MaxEmails:            20,
 			RetryAttempts:        3,
 		},
 	}

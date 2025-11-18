@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/viper"
 	"go.yaml.in/yaml/v3"
 )
 
@@ -52,23 +51,4 @@ func findConfigPath() string {
 	}
 
 	return "" // конфиг не найден
-}
-
-// setDefaults устанавливает значения по умолчанию
-func setDefaults(v *viper.Viper) {
-	// IMAP defaults
-	v.SetDefault("imap.server", "outlook.office365.com")
-	v.SetDefault("imap.port", 993)
-	v.SetDefault("imap.mailbox", "INBOX")
-	v.SetDefault("imap.tls", true)
-	v.SetDefault("imap.timeout", "30s")
-
-	// Logging defaults
-	v.SetDefault("logging.level", "info")
-	v.SetDefault("logging.format", "text")
-
-	// Monitoring defaults
-	v.SetDefault("monitoring.check_interval_seconds", 30)
-	v.SetDefault("monitoring.max_emails", 100)
-	v.SetDefault("monitoring.retry_attempts", 3)
 }
