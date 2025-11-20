@@ -67,7 +67,7 @@ func (c *Client) GetNewEmails() ([]*models.Email, error) {
 		return nil, fmt.Errorf("ошибка выбора ящика: %w", err)
 	}
 
-	// Если нет новых писем
+	// Если нет писем вообще
 	if mailbox.Messages == 0 {
 		return []*models.Email{}, nil
 	}
@@ -85,7 +85,7 @@ func (c *Client) GetNewEmails() ([]*models.Email, error) {
 	}
 
 	// Если нет новых писем
-	if len(uids) == 0 {
+	if len(uids) == 0 || (len(uids) == 1 && uids[0] == c.lastUid) {
 		return []*models.Email{}, nil
 	}
 

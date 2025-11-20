@@ -46,7 +46,7 @@ func main() {
 				if len(bodyPreview) > 100 {
 					bodyPreview = bodyPreview[:100] + "..."
 				}
-				log.Printf("Текст: %s", bodyPreview)
+				log.Printf("Текст: %s\n\n", bodyPreview)
 			}
 
 		case err, ok := <-errorCh:
