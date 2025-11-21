@@ -1,8 +1,11 @@
 package mailwatcher
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/Strochik12/CatchAnImportantLetter/internal/config"
 	"github.com/Strochik12/CatchAnImportantLetter/internal/models"
@@ -16,15 +19,74 @@ type Client struct {
 	client    *client.Client
 	connected bool
 	lastUid   uint32
+	stateFile string
 }
 
 // NewIMAP создает новый IMAP клиент
 func NewIMAPClient(cfg *config.Config) *Client {
-	return &Client{
+	client := &Client{
 		config:    cfg,
 		connected: false,
-		lastUid:   0,
+		stateFile: "data/mail_state.json",
 	}
+	client.loadState()
+	return client
+}
+
+// loadState загружает lastUid из файла сохранения
+func (c *Client) loadState() error {
+	data, err := os.ReadFile(c.stateFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			c.lastUid = 0 // Первый запуск
+			return nil
+		}
+		return fmt.Errorf("ошибка чтения файла состояния: %w", err)
+	}
+
+	var state struct {
+		LastUid uint32 `json:"last_uid"`
+	}
+
+	if err := json.Unmarshal(data, &state); err != nil {
+		return fmt.Errorf("ошибка демаршалинга состояния: %w", err)
+	}
+
+	c.lastUid = state.LastUid
+	return nil
+}
+
+// saveState атомарно записывает lastUid в файл сохранения
+func (c *Client) saveState() error {
+	state := struct {
+		LastUid uint32 `json:"last_uid"`
+	}{
+		LastUid: c.lastUid,
+	}
+
+	data, err := json.Marshal(state)
+	if err != nil {
+		return fmt.Errorf("ошибка в маршалинга: %w", err)
+	}
+
+	// Создаем директорию, если она не существует
+	dir := filepath.Dir(c.stateFile)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("ошибка создание директории: %w", err)
+	}
+
+	// Создаем временный файл для атомарной записи
+	tmpFile := c.stateFile + ".tmp"
+	if err := os.WriteFile(tmpFile, data, 0644); err != nil {
+		return fmt.Errorf("ошибка записи временного файла: %w", err)
+	}
+
+	// Атомарно заменяем старый файл новым
+	if err := os.Rename(tmpFile, c.stateFile); err != nil {
+		return fmt.Errorf("ошибка переименовывания файла: %w", err)
+	}
+
+	return nil
 }
 
 // Connect устанавливает соединение с IMAP сервером
@@ -119,11 +181,17 @@ func (c *Client) GetNewEmails() ([]*models.Email, error) {
 		}
 
 		emails = append(emails, email)
-		c.lastUid = msg.Uid
+		if msg.Uid > c.lastUid {
+			c.lastUid = msg.Uid
+		}
 	}
 
 	if err := <-done; err != nil {
 		return nil, fmt.Errorf("ошибка получения писем: %w", err)
+	}
+
+	if err := c.saveState(); err != nil {
+		return nil, fmt.Errorf("ошибка сохранения состояния: %w", err)
 	}
 
 	log.Printf("Найдено писем: %d", len(emails))
