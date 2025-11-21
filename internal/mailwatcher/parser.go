@@ -1,8 +1,12 @@
 package mailwatcher
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
+	"log"
+	"mime/quotedprintable"
 	"strings"
 
 	"github.com/Strochik12/CatchAnImportantLetter/internal/models"
@@ -52,10 +56,8 @@ func parseMessage(msg *imap.Message) (*models.Email, error) {
 func parseBody(msg *imap.Message, email *models.Email) error {
 	// Пробуем разные подходы к получению тела письма
 
-	// 1. Сначала пробуем получить multipart структуру
-	if section := msg.GetBody(&imap.BodySectionName{
-		BodyPartName: imap.BodyPartName{Specifier: imap.MIMESpecifier},
-	}); section != nil {
+	// 1. Сначала пробуем получить raw body и распарсить как MIMEBody
+	if section := msg.GetBody(&imap.BodySectionName{}); section != nil {
 		if err := parseMIMEBody(section, email); err == nil {
 			return nil // Успешно распарсили через MIME
 		}
@@ -71,11 +73,12 @@ func parseBody(msg *imap.Message, email *models.Email) error {
 		}
 	}
 
-	// 3. Последняя попытка - raw body
-	if section := msg.GetBody(&imap.BodySectionName{}); section != nil {
-		if content, err := io.ReadAll(section); err == nil {
-			email.Body = string(content)
-			return nil
+	// 3. Последняя попытка - пробуем явно получить multipart MIME структуру
+	if section := msg.GetBody(&imap.BodySectionName{
+		BodyPartName: imap.BodyPartName{Specifier: imap.MIMESpecifier},
+	}); section != nil {
+		if err := parseMIMEBody(section, email); err == nil {
+			return nil // Успешно распарсили через MIME
 		}
 	}
 
@@ -97,7 +100,7 @@ func parseMIMEBody(section io.Reader, email *models.Email) error {
 
 	// Парсим части письма (текст, HTML, вложения)
 	for {
-		p, err := mr.NextPart()
+		part, err := mr.NextPart()
 		if err == io.EOF {
 			break
 		}
@@ -105,27 +108,29 @@ func parseMIMEBody(section io.Reader, email *models.Email) error {
 			continue // Пропускаем битые части
 		}
 
-		switch h := p.Header.(type) {
-		case *mail.InlineHeader:
-			// Текстовая или HTML часть
-			content, err := io.ReadAll(p.Body)
-			if err != nil {
-				continue
-			}
-
-			contentType := h.Get("Content-Type")
-			contentStr := string(content)
-			switch {
-			case strings.Contains(contentType, "text/plain"):
-				email.Body = contentStr
-			case strings.Contains(contentType, "text/html"):
-				email.HTML = contentStr
-				email.Links = extractLinks(contentStr)
-			}
-
-		case *mail.AttachmentHeader:
-			// Вложения - пока пропускаем
+		body, err := io.ReadAll(part.Body)
+		if err != nil {
 			continue
+		}
+
+		contentType := part.Header.Get("Content-Type")
+		// Повыводив письма в сыром виде я заметил, что в письмах яндекса используется base64 кодирование
+		contentEncoding := part.Header.Get("Content-Transfer-Encoding")
+
+		// Декодируем содержимое
+		content, err := decodeContent(body, contentEncoding)
+		if err != nil {
+			log.Printf("Ошибка декодировки письма: %v", err)
+			continue
+		}
+
+		// Сохраняем в зависимости от типа
+		switch {
+		case strings.Contains(contentType, "text/plain"):
+			email.Body = content
+		case strings.Contains(contentType, "text/html"):
+			email.HTML = content
+			email.Links = extractLinks(content)
 		}
 	}
 
@@ -155,7 +160,7 @@ func extractLinks(html string) []string {
 			links = append(links, link)
 		}
 
-		start = end + 1
+		start += end + 1
 	}
 
 	return links
@@ -167,4 +172,31 @@ func formatAddress(addr *imap.Address) string {
 		return fmt.Sprintf("%s <%s@%s>", addr.PersonalName, addr.MailboxName, addr.HostName)
 	}
 	return fmt.Sprintf("%s@%s", addr.MailboxName, addr.HostName)
+}
+
+// decodeContent декодирует используемые в Яндекс почте кодировки
+func decodeContent(body []byte, encoding string) (string, error) {
+	switch strings.ToLower(encoding) {
+	case "base64":
+		decoded, err := base64.StdEncoding.DecodeString(string(body))
+		if err != nil {
+			// Если указано base64, но содержимое не base64 - возвращаем как есть
+			return string(body), nil
+		}
+		return string(decoded), nil
+
+	case "quoted-printable":
+		decoded, err := io.ReadAll(quotedprintable.NewReader(bytes.NewReader(body)))
+		if err != nil {
+			return "", fmt.Errorf("ошибка декодирования quoted-printable: %w", err)
+		}
+		return string(decoded), nil
+
+	case "7bit", "8bit", "binary", "":
+		// Без кодировки или простые текстовые кодировки
+		return string(body), nil
+
+	default:
+		return "", fmt.Errorf("неподдерживаемая кодировка: %s", encoding)
+	}
 }

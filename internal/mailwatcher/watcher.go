@@ -38,6 +38,16 @@ func (w *Watcher) Watch(ctx context.Context) (<-chan *models.Email, <-chan error
 		ticker := time.NewTicker(w.config.Monitoring.GetCheckInterval())
 		defer ticker.Stop()
 
+		// Первый просмотр сразу при запуске, чтобы не ждать.
+		emails, err := w.GetNewEmails()
+		if err != nil {
+			errorCh <- fmt.Errorf("ошибка проверки почты: %w", err)
+		} else {
+			for _, email := range emails {
+				emailCh <- email
+			}
+		}
+
 		for {
 			select {
 			case <-ticker.C:
