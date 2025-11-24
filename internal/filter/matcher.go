@@ -14,6 +14,8 @@ func (e *Engine) checkCondition(cond models.Condition, value string) (bool, erro
 		return false, nil
 	}
 
+	value = strings.ToLower(value)
+
 	switch cond.Operator {
 	case models.OperatorContains:
 		return strings.Contains(value, cond.Value), nil
