@@ -48,11 +48,11 @@ func NewAlert(e *Email, r *Rule, score int, reason string) *Alert {
 // calculateLevel определяет уровень важности
 func (a *Alert) calculateLevel() {
 	switch {
-	case a.Score >= 90:
+	case a.Score >= a.Rule.MinScore+a.Rule.MinScore/2:
 		a.Level = AlertCritical
-	case a.Score >= 75:
+	case a.Score >= a.Rule.MinScore+a.Rule.MinScore/3:
 		a.Level = AlertHigh
-	case a.Score >= 65:
+	case a.Score >= a.Rule.MinScore:
 		a.Level = AlertMedium
 	default:
 		a.Level = AlertLow
@@ -74,7 +74,7 @@ func (a *Alert) generateMessage() {
 		a.Email.Subject,
 		a.Email.From,
 		a.Score,
-		100,
+		a.Rule.MinScore,
 		a.Reason,
 	)
 }

@@ -12,6 +12,19 @@ type Config struct {
 	Rules      []*models.Rule   `yaml:"rules"`
 	Logging    LoggingConfig    `yaml:"logging,omitempty"`
 	Monitoring MonitoringConfig `yaml:"monitoring,omitempty"`
+	Notifiers  NotifiersConfig  `yaml:"notifiers,omitempty"`
+}
+
+type NotifiersConfig struct {
+	Telegram *TelegramConfig `yaml:"telegram,omitempty"`
+	// SMS      *SMSConfig      `yaml:"sms,omitempty"`
+	// Webhook  *WebhookConfig  `yaml:"webhook,omitempty"`
+}
+
+type TelegramConfig struct {
+	Enabled  bool   `yaml:"enabled,omitempty"`
+	BotToken string `yaml:"bot_token"`
+	ChatID   int64  `yaml:"chat_id"`
 }
 
 // IMAPConfig - настройки почтового сервера
@@ -56,6 +69,13 @@ func DefaultConfig() *Config {
 			CheckIntervalSeconds: 30,
 			MaxEmails:            20,
 			RetryAttempts:        3,
+		},
+		Notifiers: NotifiersConfig{
+			Telegram: &TelegramConfig{
+				Enabled:  true,
+				BotToken: "",
+				ChatID:   0,
+			},
 		},
 	}
 }

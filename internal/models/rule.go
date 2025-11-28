@@ -39,8 +39,7 @@ type ActionConfig struct {
 }
 
 type TelegramActionConfig struct {
-	ChatID  int64  `yaml:"chat_id" json:"chat_id"`
-	Message string `yaml:"message,omitempty" json:"message,omitempty"`
+	//
 }
 
 type SMSActionConfig struct {

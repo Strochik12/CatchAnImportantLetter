@@ -39,7 +39,6 @@ func main() {
 	} else {
 		for i, alert := range alerts {
 			fmt.Printf("  %d. %s\n", i+1, alert.Message)
-			fmt.Printf("     Правило: %s, Баллы: %d\n", alert.Rule.Name, alert.Score)
 		}
 	}
 

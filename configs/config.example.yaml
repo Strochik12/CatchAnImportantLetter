@@ -1,5 +1,10 @@
 # configs/config.example.yaml
 
+notifiers:
+  telegram:
+    bot_token: "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ" # Токен вашего бота
+    chat_id: 123456789 # Ваш ChatID в Telegram
+
 imap:
   server: "imap.yandex.ru"  # Или другой сервер почты, например smtp.yandex.ru
   port: 993 # 465 для smtp.yandex.ru
@@ -31,9 +36,5 @@ rules:
         weight: 30
     actions:
       - type: "telegram"
-        config:
-          telegram:
-            chat_id: 123456789
-            message: "🏥 СРОЧНО! Открыта запись на медосмотр!"
 
 # logging и monitoring можно не указывать - возьмутся из defaults
