@@ -3,16 +3,16 @@ package models
 import "time"
 
 type Rule struct {
-	ID          ID          `yaml:"id" json:"id"`
-	Name        string      `yaml:"name" json:"name"`
-	Description string      `yaml:"description" json:"description"`
-	Enabled     bool        `yaml:"enabled" json:"enabled"`
-	Conditions  []Condition `yaml:"conditions" json:"conditions"`
-	Actions     []Action    `yaml:"actions" json:"actions"`
-	Priority    int         `yaml:"priority" json:"priority"`
-	MinScore    int         `yaml:"min_score" json:"min_score"`
-	CreatedAt   time.Time   `yaml:"created_at" json:"created_at"`
-	UpdatedAt   time.Time   `yaml:"updated_at" json:"updated_at"`
+	ID          ID           `yaml:"id" json:"id"`
+	Name        string       `yaml:"name" json:"name"`
+	Description string       `yaml:"description" json:"description"`
+	Enabled     bool         `yaml:"enabled" json:"enabled"`
+	Conditions  []Condition  `yaml:"conditions" json:"conditions"`
+	Actions     []ActionType `yaml:"actions" json:"actions"`
+	Priority    int          `yaml:"priority" json:"priority"`
+	MinScore    int          `yaml:"min_score" json:"min_score"`
+	CreatedAt   time.Time    `yaml:"created_at" json:"created_at"`
+	UpdatedAt   time.Time    `yaml:"updated_at" json:"updated_at"`
 }
 
 // Condition - условие для правила
@@ -24,6 +24,7 @@ type Condition struct {
 	Weight   int           `yaml:"weight" json:"weight"`
 }
 
+/*
 // Action - действие при срабатывания правила
 type Action struct {
 	Type   ActionType    `yaml:"type" json:"type"`
@@ -54,6 +55,7 @@ type WebhookActionConfig struct {
 	Body    string            `yaml:"body,omitempty" json:"body,omitempty"`
 	Timeout time.Duration     `yaml:"timeout,omitempty" json:"timeout,omitempty"`
 }
+*/
 
 // NewRule создает новое правило с предзаполнеными полями
 func NewRule(name string) *Rule {
@@ -63,7 +65,7 @@ func NewRule(name string) *Rule {
 		Name:       name,
 		Enabled:    true,
 		Conditions: make([]Condition, 0),
-		Actions:    make([]Action, 0),
+		Actions:    make([]ActionType, 0),
 		Priority:   50,
 		MinScore:   60,
 		CreatedAt:  now,
@@ -78,7 +80,7 @@ func (r *Rule) AddCondition(condition Condition) {
 }
 
 // AddAction добавляет действие к правилу
-func (r *Rule) AddAction(action Action) {
+func (r *Rule) AddAction(action ActionType) {
 	r.Actions = append(r.Actions, action)
 	r.UpdatedAt = time.Now()
 }

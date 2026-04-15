@@ -17,7 +17,7 @@ func NewWatcher(cfg *config.Config) *Watcher {
 	return NewIMAPClient(cfg)
 }
 
-// Watch запускает мониторинг почты
+// Watch запускает мониторинг почты (go func внутри)
 func (w *Watcher) Watch(ctx context.Context) (<-chan *models.Email, <-chan error) {
 	emailCh := make(chan *models.Email)
 	errorCh := make(chan error)

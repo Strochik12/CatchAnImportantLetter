@@ -23,6 +23,11 @@ func (e *Engine) Process(email *models.Email) []*models.Alert {
 	var alerts []*models.Alert = make([]*models.Alert, 0)
 
 	for _, rule := range e.rules {
+		if rule == nil {
+			log.Printf("⚠️ Найден nil Rule в слайсе правил")
+			continue
+		}
+
 		if !rule.Enabled {
 			continue
 		}
@@ -33,7 +38,7 @@ func (e *Engine) Process(email *models.Email) []*models.Alert {
 			continue
 		}
 
-		if alerts != nil {
+		if alert != nil {
 			alerts = append(alerts, alert)
 		}
 	}

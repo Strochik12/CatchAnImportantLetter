@@ -46,6 +46,10 @@ func validateRules(rules []*models.Rule) error {
 
 	ruleNames := make(map[string]bool)
 	for i, rule := range rules {
+		if rule == nil {
+			return fmt.Errorf("rule %d is nil", i)
+		}
+
 		if rule.Name == "" {
 			return fmt.Errorf("rule %d: name is required", i)
 		}

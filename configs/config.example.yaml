@@ -35,6 +35,6 @@ rules:
         value: "запись"
         weight: 30
     actions:
-      - type: "telegram"
+      - "telegram"
 
 # logging и monitoring можно не указывать - возьмутся из defaults
