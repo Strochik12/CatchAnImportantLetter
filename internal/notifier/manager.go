@@ -27,12 +27,6 @@ func NewManager(cfg *config.Config) (*Manager, error) {
 		manager.Register(models.ActionNotifyTelegram, telegram)
 	}
 
-	// Здесь можно добавить инициализацию других нотификаторов
-	// if cfg.Notifiers.SMS != nil && cfg.Notifiers.SMS.Enabled {
-	//     sms, err := NewSMS(cfg.Notifiers.SMS)
-	//     manager.Register(models.ActionNotifySMS, sms)
-	// }
-
 	log.Printf("Менеджер нотификаторов инициализирован. Доступно: %d", len(manager.notifiers))
 	return manager, nil
 }

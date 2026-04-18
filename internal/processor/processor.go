@@ -32,7 +32,6 @@ type Stats struct {
 
 // NewProcessor создаёт новый обработчик
 func NewProcessor(cfg *config.Config) (*Processor, error) {
-	// Создаём все компоненты
 	watcher := mailwatcher.NewWatcher(cfg)
 
 	filter := filter.NewEngine(cfg.Rules)

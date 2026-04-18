@@ -55,9 +55,7 @@ func (t *TelegramNotifier) Send(alert *models.Alert) error {
 	message := t.formatMessage(alert)
 
 	msg := tgbotapi.NewMessage(t.chatID, message)
-	msg.ParseMode = "HTML" // Для форматирования
-
-	// Добавляем что то в сообщение
+	msg.ParseMode = "HTML"
 
 	_, err := t.bot.Send(msg)
 	if err != nil {
@@ -72,7 +70,7 @@ func (t *TelegramNotifier) Send(alert *models.Alert) error {
 func (t *TelegramNotifier) formatMessage(alert *models.Alert) string {
 	var sb strings.Builder
 
-	// Эмоджи в зависимости от уровня важности
+	// Эмодзи в зависимости от уровня важности
 	var emoji string
 	switch alert.Level {
 	case models.AlertCritical:
@@ -92,7 +90,7 @@ func (t *TelegramNotifier) formatMessage(alert *models.Alert) string {
 	sb.WriteString(fmt.Sprintf("<b>От:</b> %s\n", escapeHTML(alert.Email.From)))
 
 	sb.WriteString(fmt.Sprintf("<b>Время:</b> %s\n", alert.Email.Date.Format("15:04 02.01")))
-	sb.WriteString(fmt.Sprintf("<b>Причина:</b> %s\n", escapeHTML(alert.Reason)))
+	// sb.WriteString(fmt.Sprintf("<b>Причина:</b> %s\n", escapeHTML(alert.Reason)))
 
 	return sb.String()
 }
