@@ -22,7 +22,7 @@ func init() {
 	charset.RegisterEncoding("koi8-r", charmap.KOI8R)
 }
 
-// parseMessage преобразует imap.Message в наш models.Email
+// parseMessage преобразует imap.Message в models.Email
 func parseMessage(msg *imap.Message) (*models.Email, error) {
 	if msg.Envelope == nil {
 		return nil, fmt.Errorf("письмо не содержит envelope")

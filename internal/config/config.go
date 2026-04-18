@@ -10,7 +10,6 @@ import (
 type Config struct {
 	IMAP       IMAPConfig       `yaml:"imap"`
 	Rules      []*models.Rule   `yaml:"rules"`
-	Logging    LoggingConfig    `yaml:"logging,omitempty"`
 	Monitoring MonitoringConfig `yaml:"monitoring,omitempty"`
 	Notifiers  NotifiersConfig  `yaml:"notifiers,omitempty"`
 }
@@ -38,13 +37,6 @@ type IMAPConfig struct {
 	TimeoutSeconds int    `yaml:"timeout_seconds,omitempty"`
 }
 
-// LoggingConfig - настройки логирования
-type LoggingConfig struct {
-	Level    string `yaml:"level"`  // "debug", "info", "warn", "error"
-	Format   string `yaml:"format"` // "json", "text"
-	FilePath string `yaml:"file_path,omitempty"`
-}
-
 // MonitoringConfig - настройки мониторинга
 type MonitoringConfig struct {
 	CheckIntervalSeconds int `yaml:"check_interval_seconds,omitempty"`
@@ -60,10 +52,6 @@ func DefaultConfig() *Config {
 			Mailbox:        "INBOX",
 			TLS:            true,
 			TimeoutSeconds: 30,
-		},
-		Logging: LoggingConfig{
-			Level:  "info",
-			Format: "text",
 		},
 		Monitoring: MonitoringConfig{
 			CheckIntervalSeconds: 30,

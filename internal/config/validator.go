@@ -50,8 +50,9 @@ func validateRules(rules []*models.Rule) error {
 			return fmt.Errorf("rule %d is nil", i)
 		}
 
-		if rule.Name == "" {
-			return fmt.Errorf("rule %d: name is required", i)
+		// Валидируем само правило
+		if err := validateRule(rule); err != nil {
+			return fmt.Errorf("rule '%s' validation failed: %w", rule.Name, err)
 		}
 
 		// Проверяем уникальность имен правил
@@ -59,13 +60,25 @@ func validateRules(rules []*models.Rule) error {
 			return fmt.Errorf("duplicate rule name: %s", rule.Name)
 		}
 		ruleNames[rule.Name] = true
-
-		// Валидируем само правило
-		if err := rule.Validate(); err != nil {
-			return fmt.Errorf("rule '%s' validation failed: %w", rule.Name, err)
-		}
 	}
 
+	return nil
+}
+
+// Validate проверяет правило на валидность
+func validateRule(r *models.Rule) error {
+	if r.Name == "" {
+		return fmt.Errorf("rule name cannot be empty")
+	}
+	if len(r.Conditions) == 0 {
+		return fmt.Errorf("rule must have at least one condition")
+	}
+	if len(r.Actions) == 0 {
+		return fmt.Errorf("rule must have at least one action")
+	}
+	if r.MinScore < 0 || r.MinScore > 100 {
+		return fmt.Errorf("min_score must be between 0 and 100")
+	}
 	return nil
 }
 
