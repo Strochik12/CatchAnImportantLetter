@@ -15,7 +15,7 @@ CatchAnImportantLetter - это программа, которая решает 
 
 1. Скачайте исполняемый файл для вашей ОС из [Releases](https://github.com/yourusername/hse-email-alert/releases)
 
-2. Создайте и заполните файл `config.yaml` (можно взять и настроить `config.example.yaml`)
+2. Заполните файл `config.yaml` (подсмотреть можно в `config.example.yaml` из configs/)
 
 3. Настройте Telegram бота:
    - Напишите [@BotFather](https://t.me/BotFather) → `/newbot`

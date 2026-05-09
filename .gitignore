@@ -2,7 +2,7 @@
 release/
 *.exe
 *.exe~
-cil-*
+cil*
 
 
 # Binaries for programs and plugins
