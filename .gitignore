@@ -1,6 +1,11 @@
-# Binaries for programs and plugins
+#Release files
+release/
 *.exe
 *.exe~
+cil-*
+
+
+# Binaries for programs and plugins
 *.dll
 *.so
 *.dylib
